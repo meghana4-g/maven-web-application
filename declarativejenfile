@@ -1,15 +1,29 @@
 pipeline{
 agent any
+parameters {
+  choice choices: ['development', 'master', 'qa'], description: 'Select Branch Name', name: 'BranchName'
+}
+
 
 tools{
 maven "maven3.8.6"
 }
+triggers {
+  pollSCM('* * * * *')
+   //cron('* * * * *')
+}
+
+options {
+  timestamps()
+  buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
+}
+
 stages {
 stage('checkout'){
 steps{
  slacknotifications("STARTED")
 
-git branch: 'development', url: 'https://github.com/meghana4-g/maven-web-application.git'
+git branch:  "${params.BranchName}", url: 'https://github.com/meghana4-g/maven-web-application.git'
 }
 }
 stage('maven'){
